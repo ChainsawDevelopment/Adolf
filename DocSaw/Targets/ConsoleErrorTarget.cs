@@ -12,7 +12,7 @@ namespace DocSaw.Targets
 
             foreach (var pageErrors in byPage)
             {
-                var path = string.Join(" -> ", pageErrors.Key.Ancestors.Select(x => x.Title).Union(new[] {pageErrors.Key.Title}));
+                var path = pageErrors.Key.GetPath();
 
                 Console.WriteLine(path);
 
