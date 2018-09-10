@@ -1,0 +1,6 @@
+bin
+obj
+packages
+DocSaw/config/local
+.vs
+DocSaw/Properties/launchSettings.json
