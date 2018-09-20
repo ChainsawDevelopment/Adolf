@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace DocSaw.Confluence
 {
@@ -38,45 +37,12 @@ namespace DocSaw.Confluence
         public string Value { get; set; }
     }
 
-    public class AtlasFormatConverter : JsonConverter
-    {
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            //if (objectType != typeof(AtlasItem))
-            //{
-            //    return serializer.
-            //}
-
-            var obj = JObject.Load(reader);
-
-            var itemType = obj.Property("type").Value.Value<string>();
-
-            switch (itemType)
-            {
-                case "doc":
-                    return obj.ToObject<AtlasDoc>(serializer);
-                default:
-                    throw new Exception($"Unrecognized item type {itemType}");
-            }
-        }
-
-        public override bool CanConvert(Type objectType)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    //[JsonConverter(typeof(AtlasFormatConverter))]
     public class AtlasItem
     {
         public string Type { get; set; }
         public List<AtlasItem> Content { get; set; }
         public string Text { get; set; }
+        public List<AtlasMark> Marks { get; set; } = new List<AtlasMark>();
 
         public void VisitAll(Action<AtlasItem> action)
         {
@@ -110,9 +76,16 @@ namespace DocSaw.Confluence
                 }
             }
         }
+
+        public bool HasMark(string markType) => Marks.Any(x => x.Type == markType);
+
+        public override string ToString() => $"Type={Type}";
     }
 
-    public class AtlasDoc : AtlasItem
+    public class AtlasMark
     {
+        public string Type { get; set; }
+
+        public override string ToString() => $"Mark: {Type}";
     }
 }

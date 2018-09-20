@@ -1,0 +1,56 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using DocSaw.Confluence;
+using Newtonsoft.Json;
+
+namespace DocSaw.Rules
+{
+    public class SentenceMustNotBeTooLong : IRule
+    {
+        private static readonly Regex SentenceEdge = new Regex(@"(?<=[.?!])\s+(?=[A-Z0-9])");
+
+        public void Check(Page page, ErrorReporter reporter)
+        {
+            var doc = JsonConvert.DeserializeObject<AtlasItem>(page.Body.AtlasDocFormat.Value);
+
+            var paragraphs = doc.Descendants().Where(x => x.Type == "paragraph").ToList();
+
+            var texts = new List<string>();
+
+            foreach (var paragraph in paragraphs)
+            {
+                var textItems = paragraph.Content
+                    .Where(x => x.Type == "text" && !x.HasMark("code"));
+
+                var text = string.Join("", textItems.Select(x => x.Text));
+                texts.Add(text);
+            }
+
+            foreach (var text in texts)
+            {
+                var sentences = SentenceEdge.Split(text);
+
+                foreach (var sentence in sentences)
+                {
+                    var wordCount = CountWords(sentence);
+                    if (wordCount > 25)
+                    {
+                        reporter.Report(page, $"Sentence '{sentence}' is too long: {wordCount} words");
+                    }
+                }
+            }
+        }
+
+        private int CountWords(string sentence)
+        {
+            if (string.IsNullOrWhiteSpace(sentence))
+            {
+                return 0;
+            }
+
+            return sentence.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
+        }
+    }
+}
