@@ -9,7 +9,18 @@ namespace DocSaw.Rules
 {
     public class SentenceMustNotBeTooLong : IRule
     {
+        private readonly Config _config;
         private static readonly Regex SentenceEdge = new Regex(@"(?<=[.?!])\s+(?=[A-Z0-9])");
+
+        public SentenceMustNotBeTooLong(Config config)
+        {
+            _config = config;
+        }
+
+        public class Config
+        {
+            public int MaxWords { get; set; } = 25;
+        }
 
         public void Check(Page page, ErrorReporter reporter)
         {
@@ -35,7 +46,7 @@ namespace DocSaw.Rules
                 foreach (var sentence in sentences)
                 {
                     var wordCount = CountWords(sentence);
-                    if (wordCount > 25)
+                    if (wordCount > _config.MaxWords)
                     {
                         reporter.Report(page, $"Sentence '{sentence}' is too long: {wordCount} words");
                     }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -13,7 +12,6 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using RestSharp;
 using RestSharp.Authenticators;
-using RestSharp.Deserializers;
 
 namespace DocSaw
 {
@@ -33,7 +31,7 @@ namespace DocSaw
 
             rs.AddHandler("application/json", new NewtonsoftDeserializer(serializer));
 
-            var container = BuildContainer(rs);
+            var container = BuildContainer(rs, config);
 
             var pageUrl = $"/rest/api/content?expand=body,body.atlas_doc_format,container,metadata.properties,ancestors&spaceKey={config["SpaceKey"]}&limit=100";
 
@@ -42,7 +40,7 @@ namespace DocSaw
             int totalPages = 0;
             int ignoredPages = 0;
 
-            var rules = container.Resolve<IEnumerable<IRule>>();
+            var rules = container.Resolve<IEnumerable<IRule>>().ToList();
 
             var ignoredPaths = config.GetSection("Ignore")
                 .GetChildren()
@@ -100,42 +98,17 @@ namespace DocSaw
             Console.WriteLine($"{reporter.ErrorsCount} errors reported");
         }
 
-        private static IContainer BuildContainer(RestClient restClient)
+        private static IContainer BuildContainer(RestClient restClient, IConfigurationRoot config)
         {
             var containerBuilder = new ContainerBuilder();
 
             containerBuilder.RegisterInstance(restClient).AsSelf();
 
-            containerBuilder.RegisterAssemblyTypes(typeof(Program).Assembly)
-                .AssignableTo<IRule>()
-                .AsImplementedInterfaces();
+            containerBuilder.RegisterInstance(config).As<IConfigurationRoot>();
+
+            containerBuilder.RegisterModule<RulesModule>();
 
             return containerBuilder.Build();
         }
     }
-
-    public class NewtonsoftDeserializer : IDeserializer
-    {
-        private readonly JsonSerializer _serializer;
-
-        public NewtonsoftDeserializer(JsonSerializer serializer)
-        {
-            _serializer = serializer;
-        }
-
-        public T Deserialize<T>(IRestResponse response)
-        {
-            using (var stringReader = new StringReader(response.Content))
-            using (var jsonReader = new JsonTextReader(stringReader))
-            {
-                return _serializer.Deserialize<T>(jsonReader);
-            }
-        }
-
-        public string RootElement { get; set; }
-        public string Namespace { get; set; }
-        public string DateFormat { get; set; }
-    }
-
-
 }

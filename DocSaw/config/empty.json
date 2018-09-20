@@ -3,5 +3,10 @@
   "User": "",
   "Token": "",
   "ConfluenceUrl": "",
-  "CheckRoot": "" 
+  "CheckRoot": "",
+  "Rules": {
+    "SentenceMustNotBeTooLong": {
+      "MaxWords":  50 
+    } 
+  } 
 }
