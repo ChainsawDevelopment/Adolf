@@ -40,8 +40,14 @@ namespace DocSaw
             var reporter = new ErrorReporter();
 
             int totalPages = 0;
+            int ignoredPages = 0;
 
             var rules = container.Resolve<IEnumerable<IRule>>();
+
+            var ignoredPaths = config.GetSection("Ignore")
+                .GetChildren()
+                .Select(x => x.Value)
+                .ToList();
 
             while (!string.IsNullOrWhiteSpace(pageUrl))
             {
@@ -51,6 +57,20 @@ namespace DocSaw
                 {
                     if (page.Ancestors.ElementAtOrDefault(1)?.Title != config["CheckRoot"])
                     {
+                        continue;
+                    }
+
+                    var path = page.GetPath();
+
+                    if (path.Contains("informacji"))
+                    {
+                        
+                    }
+
+                    if (ignoredPaths.Any(x => path.StartsWith(x, StringComparison.CurrentCultureIgnoreCase)))
+                    {
+                        Console.WriteLine($"Ignoring {path}");
+                        ignoredPages++;
                         continue;
                     }
 
@@ -74,7 +94,9 @@ namespace DocSaw
 
             reporter.SendErrorsTo(new ConsoleErrorTarget());
 
-            Console.WriteLine($"{totalPages} pages checked");
+            Console.WriteLine($"{totalPages} pages in total");
+            Console.WriteLine($"{totalPages - ignoredPages} pages checked");
+            Console.WriteLine($"{ignoredPages} pages ignored");
             Console.WriteLine($"{reporter.ErrorsCount} errors reported");
         }
 

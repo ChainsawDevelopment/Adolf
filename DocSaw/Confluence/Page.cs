@@ -28,7 +28,7 @@ namespace DocSaw.Confluence
 
         public string GetPath()
         {
-            return string.Join(" -> ", Ancestors.Select(x => x.Title).Union(new[] {Title}));
+            return string.Join(" -> ", Ancestors.Select(x => x.Title.Trim()).Union(new[] {Title.Trim()}));
         }
     }
 
