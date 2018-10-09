@@ -40,7 +40,7 @@ namespace DocSaw
             int totalPages = 0;
             int ignoredPages = 0;
 
-            var rules = container.Resolve<IEnumerable<IRule>>().ToList();
+            var rules = CreateRuleSet(container);
 
             var ignoredPaths = config.GetSection("Ignore")
                 .GetChildren()
@@ -96,6 +96,18 @@ namespace DocSaw
             Console.WriteLine($"{totalPages - ignoredPages} pages checked");
             Console.WriteLine($"{ignoredPages} pages ignored");
             Console.WriteLine($"{reporter.ErrorsCount} errors reported");
+        }
+
+        private static List<IRule> CreateRuleSet(IContainer container)
+        {
+            var onlyRules = container.Resolve<IConfigurationRoot>().GetSection("OnlyRules").GetChildren().Select(x => x.Value).ToArray();
+
+            if (onlyRules.Any())
+            {
+                return onlyRules.Select(container.ResolveNamed<IRule>).ToList();
+            }
+
+            return container.Resolve<IEnumerable<IRule>>().ToList();
         }
 
         private static IContainer BuildContainer(RestClient restClient, IConfigurationRoot config)

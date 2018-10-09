@@ -17,7 +17,7 @@ namespace DocSaw
 
             foreach (var ruleType in ruleTypes)
             {
-                builder.RegisterType(ruleType).As<IRule>();
+                builder.RegisterType(ruleType).As<IRule>().Named<IRule>(ruleType.Name);
 
                 var configType = ruleType.GetNestedType("Config");
                 if (configType != null)
