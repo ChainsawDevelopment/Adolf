@@ -48,15 +48,15 @@ namespace DocSaw
             bool result = true;
             invalidStart = "";
 
-            var remaining = new StringSegment(title).Trim();
-            var initialLength = remaining.Length;
+            var fullTitle = new StringSegment(title).Trim();
+            var initialLength = fullTitle.Length;
+            var remaining = fullTitle;
 
             if (remaining.Length > 0 && !char.IsLetterOrDigit(remaining[0]))
             {
                 invalidStart = title;
                 return false;
             }
-
 
             var allowedLowerCase =
                 Articles
@@ -68,6 +68,8 @@ namespace DocSaw
 
             while (remaining.Length > 0)
             {
+                var pastText = fullTitle.Subsegment(0, initialLength - remaining.Length);
+
                 if (Separators.Contains(remaining[0]))
                 {
                     remaining = remaining.Subsegment(1);
@@ -78,6 +80,17 @@ namespace DocSaw
                 {
                     remaining = SplitAtWhitespace(remaining);
                     continue;
+                }
+
+                {
+                    if (pastText.EndsWith("Appendix ", StringComparison.InvariantCultureIgnoreCase) && char.IsLetter(remaining[0]) && char.IsUpper(remaining[0]))
+                    {
+                        if (remaining.Length == 1 || Separators.Contains(remaining[1]))
+                        {
+                            remaining = remaining.Subsegment(1);
+                            continue;
+                        }
+                    }
                 }
 
                 {

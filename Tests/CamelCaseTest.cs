@@ -49,6 +49,10 @@ namespace Tests
             yield return tc("UHF / VHF"); // will do for now
             // yield return tc("UHF/VHF"); // would be better
 
+            yield return tc("Appendix A - Something Here");
+            yield return tc("Appendix A");
+            yield return tc("Analysis of the Results - Appendix A");
+
         }
 
         public static IEnumerable<object[]> IncorrectTitles()
