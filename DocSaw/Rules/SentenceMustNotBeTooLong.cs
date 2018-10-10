@@ -33,9 +33,9 @@ namespace DocSaw.Rules
             foreach (var paragraph in paragraphs)
             {
                 var textItems = paragraph.Content
-                    .Where(x => x.Type == "text" && !x.HasMark("code"));
+                    .Where(x => (x.Type == "text" || x.Type == "hardBreak") && !x.HasMark("code"));
 
-                var text = string.Join("", textItems.Select(x => x.Text));
+                var text = string.Join("", textItems.Select(GetElementText));
                 texts.Add(text);
             }
 
@@ -52,6 +52,16 @@ namespace DocSaw.Rules
                     }
                 }
             }
+        }
+
+        private static string GetElementText(AtlasItem x)
+        {
+            if (x.Type == "hardBreak")
+            {
+                return " ";
+            }
+
+            return x.Text;
         }
 
         private int CountWords(string sentence)

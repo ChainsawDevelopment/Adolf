@@ -26,7 +26,7 @@ namespace DocSaw
             var rs = new RestSharp.RestClient(config["ConfluenceUrl"]);
             rs.Authenticator = new HttpBasicAuthenticator(config["User"], config["Token"]);
             rs.ClearHandlers();
-
+            
             var serializer = new JsonSerializer();
 
             rs.AddHandler("application/json", new NewtonsoftDeserializer(serializer));
@@ -90,7 +90,7 @@ namespace DocSaw
                 totalPages += response.Data.Results.Count;
             }
 
-            reporter.SendErrorsTo(new ConsoleErrorTarget());
+            reporter.SendErrorsTo(container.Resolve<ConsoleErrorTarget>());
 
             Console.WriteLine($"{totalPages} pages in total");
             Console.WriteLine($"{totalPages - ignoredPages} pages checked");
@@ -119,6 +119,12 @@ namespace DocSaw
             containerBuilder.RegisterInstance(config).As<IConfigurationRoot>();
 
             containerBuilder.RegisterModule<RulesModule>();
+
+            containerBuilder.RegisterType<ConsoleErrorTarget>().AsSelf()
+                .WithParameter(
+                    (x, ctx) => x.Name == "siteBase", 
+                    (x, ctx) => config["ConfluenceUrl"]
+                );
 
             return containerBuilder.Build();
         }

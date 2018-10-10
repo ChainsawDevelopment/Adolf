@@ -7,6 +7,7 @@ namespace DocSaw.Confluence
 {
     public class Page
     {
+        public string Id { get; set; }
         public string Title { get; set; }
         public List<PageRef> Ancestors { get; set; }
 
@@ -23,6 +24,7 @@ namespace DocSaw.Confluence
         public class PageLinks
         {
             public string Self { get; set; }
+            public string Webui { get; set; }
         }
 
         public string GetPath()

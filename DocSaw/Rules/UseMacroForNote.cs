@@ -6,8 +6,15 @@ namespace DocSaw.Rules
 {
     public class UseMacroForNote : IRule
     {
+        private static readonly string[] Beginnings = new[] {"Note:", "CAUTION:"};
+
         public void Check(Page page, ErrorReporter reporter)
         {
+            if (page.Id == "397541701")
+            {
+                
+            }
+
             var doc = JsonConvert.DeserializeObject<AtlasItem>(page.Body.AtlasDocFormat.Value);
 
             var paragraphs = doc.Descendants().Where(x => x.Type == "paragraph");
@@ -19,7 +26,7 @@ namespace DocSaw.Rules
 
                 var text = string.Join(" ", textItems.Select(x => x.Text));
 
-                if (text.StartsWith("Note:"))
+                if (Beginnings.Any(x => text.StartsWith(x)))
                 {
                     reporter.Report(page, $"Note detected outside of macro: '{text}'");
                 }
