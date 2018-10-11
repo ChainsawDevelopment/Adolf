@@ -47,6 +47,8 @@ namespace DocSaw
                 .Select(x => x.Value)
                 .ToList();
 
+            var debugPages = config.GetSection("DebugPages").GetChildren().Select(x => x.Get<string>()).ToList();
+
             while (!string.IsNullOrWhiteSpace(pageUrl))
             {
                 var response = await rs.ExecuteGetTaskAsync<Paged<Page>>(new RestRequest(pageUrl));
@@ -60,16 +62,16 @@ namespace DocSaw
 
                     var path = page.GetPath();
 
-                    if (path.Contains("informacji"))
-                    {
-                        
-                    }
-
                     if (ignoredPaths.Any(x => path.StartsWith(x, StringComparison.CurrentCultureIgnoreCase)))
                     {
                         Console.WriteLine($"Ignoring {path}");
                         ignoredPages++;
                         continue;
+                    }
+
+                    if (debugPages.Contains(page.Id))
+                    {
+                        System.Diagnostics.Debugger.Break();
                     }
 
                     foreach (var rule in rules)
