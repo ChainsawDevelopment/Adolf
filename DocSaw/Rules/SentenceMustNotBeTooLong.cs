@@ -20,6 +20,7 @@ namespace DocSaw.Rules
         public class Config
         {
             public int MaxWords { get; set; } = 25;
+            public List<string> Ignored { get; set; } = new List<string>();
         }
 
         public void Check(Page page, ErrorReporter reporter)
@@ -46,10 +47,17 @@ namespace DocSaw.Rules
                 foreach (var sentence in sentences)
                 {
                     var wordCount = CountWords(sentence);
-                    if (wordCount > _config.MaxWords)
+                    if (wordCount <= _config.MaxWords)
                     {
-                        reporter.Report(page, $"Sentence '{sentence}' is too long: {wordCount} words");
+                        continue;
                     }
+
+                    if (_config.Ignored.Contains(sentence.Trim(), StringComparer.InvariantCultureIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    reporter.Report(page, $"Sentence '{sentence}' is too long: {wordCount} words");
                 }
             }
         }
