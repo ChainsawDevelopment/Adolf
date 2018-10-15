@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DocSaw.Confluence
 {
@@ -80,6 +81,7 @@ namespace DocSaw.Confluence
         }
 
         public bool HasMark(string markType) => Marks.Any(x => x.Type == markType);
+        public AtlasMark Mark(string markType) => Marks.Single(x => x.Type == markType);
 
         public override string ToString() => $"Type={Type}";
     }
@@ -89,5 +91,6 @@ namespace DocSaw.Confluence
         public string Type { get; set; }
 
         public override string ToString() => $"Mark: {Type}";
+        public Dictionary<string, JToken> Attrs { get; set; }
     }
 }
