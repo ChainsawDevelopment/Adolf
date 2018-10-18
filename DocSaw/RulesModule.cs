@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using Autofac;
+using Autofac.Features.AttributeFilters;
 using DocSaw.Rules;
 using Microsoft.Extensions.Configuration;
 
@@ -17,7 +18,7 @@ namespace DocSaw
 
             foreach (var ruleType in ruleTypes)
             {
-                builder.RegisterType(ruleType).As<IRule>().Named<IRule>(ruleType.Name);
+                builder.RegisterType(ruleType).As<IRule>().Named<IRule>(ruleType.Name).WithAttributeFiltering();
 
                 var configType = ruleType.GetNestedType("Config");
                 if (configType != null)
@@ -27,7 +28,7 @@ namespace DocSaw
                         var cfg = ctx.Resolve<IConfigurationRoot>();
                         var r = cfg.GetSection("Rules").GetSection(ruleType.Name).Get(configType);
                         return r ?? Activator.CreateInstance(configType);
-                    }).As(configType);
+                    }).As(configType).SingleInstance();
                 }
             }
         }

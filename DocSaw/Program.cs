@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -31,7 +32,7 @@ namespace DocSaw
 
             rs.AddHandler("application/json", new NewtonsoftDeserializer(serializer));
 
-            var container = BuildContainer(rs, config);
+            var container = BuildContainer(rs, config, args[0]);
 
             var pageUrl = $"/rest/api/content?expand=body,body.atlas_doc_format,container,metadata.properties,ancestors&spaceKey={config["SpaceKey"]}&limit=100";
 
@@ -112,7 +113,7 @@ namespace DocSaw
             return container.Resolve<IEnumerable<IRule>>().ToList();
         }
 
-        private static IContainer BuildContainer(RestClient restClient, IConfigurationRoot config)
+        private static IContainer BuildContainer(RestClient restClient, IConfigurationRoot config, string configFile)
         {
             var containerBuilder = new ContainerBuilder();
 
@@ -127,6 +128,8 @@ namespace DocSaw
                     (x, ctx) => x.Name == "siteBase", 
                     (x, ctx) => config["ConfluenceUrl"]
                 );
+
+            containerBuilder.RegisterInstance(configFile).Keyed<string>("ConfigFile");
 
             return containerBuilder.Build();
         }

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Autofac.Features.AttributeFilters;
 using DocSaw.Confluence;
 using Newtonsoft.Json;
 
@@ -9,18 +11,31 @@ namespace DocSaw.Rules
 {
     public class SentenceMustNotBeTooLong : IRule
     {
-        private readonly Config _config;
-        private static readonly Regex SentenceEdge = new Regex(@"(?<=[.?!])\s+(?=[A-Z0-9])");
-
-        public SentenceMustNotBeTooLong(Config config)
-        {
-            _config = config;
-        }
-
         public class Config
         {
             public int MaxWords { get; set; } = 25;
-            public List<string> Ignored { get; set; } = new List<string>();
+
+            public string IgnoredFile { get; set; }
+        }
+
+        private static readonly Regex SentenceEdge = new Regex(@"(?<=[.?!])\s+(?=[A-Z0-9])");
+
+        private readonly Config _config;
+        private readonly string[] _ignored;
+
+        public SentenceMustNotBeTooLong(Config config, [KeyFilter("ConfigFile")]string configFile)
+        {
+            _config = config;
+
+            if (string.IsNullOrWhiteSpace(config.IgnoredFile))
+            {
+                _ignored = Array.Empty<string>();
+            }
+            else
+            {
+                var listFile = Path.Combine(Path.GetDirectoryName(configFile), config.IgnoredFile);
+                _ignored = File.ReadAllLines(listFile);
+            }
         }
 
         public void Check(Page page, ErrorReporter reporter)
@@ -52,7 +67,7 @@ namespace DocSaw.Rules
                         continue;
                     }
 
-                    if (_config.Ignored.Contains(sentence.Trim(), StringComparer.InvariantCultureIgnoreCase))
+                    if (_ignored.Contains(sentence.Trim(), StringComparer.InvariantCultureIgnoreCase))
                     {
                         continue;
                     }
