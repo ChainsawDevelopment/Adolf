@@ -43,7 +43,7 @@ namespace DocSaw.Confluence
     public class AtlasItem
     {
         public string Type { get; set; }
-        public List<AtlasItem> Content { get; set; }
+        public List<AtlasItem> Content { get; set; } = new List<AtlasItem>();
         public string Text { get; set; }
         public List<AtlasMark> Marks { get; set; } = new List<AtlasMark>();
 
