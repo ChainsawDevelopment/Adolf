@@ -29,7 +29,7 @@ namespace DocSaw
 
         private static readonly char[] Separators = new[]
         {
-            ' ', '-', ',', '.', '(', ')', '/'
+            ' ', '-', ',', '.', '(', ')', '/', '–'
         };
 
         private static readonly string[] Units = new[]

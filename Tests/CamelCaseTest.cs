@@ -53,6 +53,9 @@ namespace Tests
             yield return tc("Appendix A");
             yield return tc("Analysis of the Results - Appendix A");
 
+            yield return tc("Appendix F - Scripts (Codes)");
+            yield return tc("Charts of Heat Flux and Temperature – Appendix E");
+            yield return tc("Contour Maps of Temperature – Appendix A");
         }
 
         public static IEnumerable<object[]> IncorrectTitles()
