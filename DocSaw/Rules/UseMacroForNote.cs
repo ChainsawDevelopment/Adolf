@@ -35,11 +35,23 @@ namespace DocSaw.Rules
 
                 var text = string.Join(" ", textItems.Select(x => x.Text));
 
-                if (Beginnings.Any(x => text.StartsWith(x, StringComparison.InvariantCultureIgnoreCase)))
+                if (Beginnings.Any(x => StartsWith(text, x)))
                 {
                     report(text);
                 }
             }
+        }
+
+        private static bool StartsWith(string text, string pattern)
+        {
+            if (!text.StartsWith(pattern, StringComparison.InvariantCultureIgnoreCase)) return false;
+
+            if (text.Length == pattern.Length)
+            {
+                return true;
+            }
+
+            return char.IsWhiteSpace(text[pattern.Length]);
         }
 
         private IEnumerable<IEnumerable<AtlasItem>> SplitAtHardBreaks(IEnumerable<AtlasItem> items)
